@@ -1,0 +1,177 @@
+﻿using UnityEngine;
+
+[RequireComponent(typeof(MeshFilter))]
+[RequireComponent(typeof(MeshRenderer))]
+public class AreaLights : MonoBehaviour
+{
+    // Initialise mesh renderer and filter
+    MeshFilter mf;
+    MeshRenderer mr;
+
+    // Arrays to specify mesh vertices and triangles
+    private Vector3[] vertices;
+    private int[] triangles;
+
+    private Mesh mesh;
+
+    // Radius of the circle
+    private float radius;
+
+    private float transparency = 0.25f;
+
+    // Number of points on circle's circumference
+    int numPoints = 128;
+
+    private Color colour;
+    private eType lightColour;
+    //public Light pLight;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        // Get references to the mesh filter and renderer components
+        mf = GetComponent<MeshFilter>();
+        mr = GetComponent<MeshRenderer>();
+
+        // Create new mesh and attach it to the mesh filter
+        mesh = new Mesh();
+        mf.mesh = mesh;
+
+        // Set lightBlinker references
+        LightBlinker lightBlink = GetComponentInParent<LightBlinker>();
+        radius = lightBlink.radius;
+        lightColour = lightBlink.colour;
+
+        // Point light range
+        //pLight.range = radius * 2;
+
+        // Set light colour
+        if (lightColour == eType.Purple)
+        {
+            //pLight.color = new Color(1f, 0f, 1f);
+            colour = new Color(1f, 0f, 1f);
+        }
+        else if (lightColour == eType.Yellow)
+        {
+            //pLight.color = Color.yellow;
+            colour = Color.yellow;
+        }
+        else if (lightColour == eType.Red)
+        {
+            //pLight.color = Color.red;
+            colour = Color.red;
+        }
+        else if (lightColour == eType.Green)
+        {
+            //pLight.color = Color.green;
+            colour = Color.green;
+        }
+        colour.a = transparency;
+        mr.material.color = colour;  /*new Color(0f, 0f, 0f, 0f);*/
+
+        // Initialise array for vertices and triangles (plus one extra
+        // vertex is for the centre of the circle)
+        vertices = new Vector3[numPoints + 1];
+        triangles = new int[numPoints * 3];
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        // Finds angle between two points on circle
+        float delta = 2f * Mathf.PI / (float)(numPoints - 1);
+        // Starts with 0 angle
+        float alpha = 0f;
+
+        // Center vertex at (0, 0)
+        vertices[0].x = 0;
+        vertices[0].y = 0;
+        vertices[0].z = transform.position.z;
+
+        // Specifies that raycasting will only interact with the given layer
+        int layerMask = (1 << 8) | (1 << 13) | (1 << 15);
+
+        // Position other vertices around the circle evenly
+        for (int i = 1; i <= numPoints; i++)
+        {
+
+            // Find x position from coordinates
+            float x = radius * Mathf.Cos(alpha);
+            // Rind y position from coordinates
+            float y = radius * Mathf.Sin(alpha);
+
+            // Create a ray
+            Vector2 ray = new Vector2(x, y);
+            ray.x *= transform.lossyScale.x;
+            ray.y *= transform.lossyScale.y;
+
+            // Cast the ray 
+            RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, ray, ray.magnitude, layerMask);
+            // Check if ray has hit something, if yes, check how far from the ray's origin point
+            // and adjust the distance of where the mesh point is going to be located.
+            foreach (RaycastHit2D hit in hits)
+            {
+                if (hit.collider != null)
+                {
+                    // Tells object hit by ray that it has been detected
+                    if (hit.collider.CompareTag("Enemy"))
+                    {
+                        if (lightColour == eType.Purple)
+                        {
+                            hit.transform.parent.SendMessage("HitByUVRay", gameObject);
+                            hit.transform.parent.GetComponentInChildren<EnemyRange>().hitByLight = true;
+                        }
+                        else if (lightColour == eType.Yellow)
+                        {
+                            hit.transform.parent.SendMessage("HitByYellowRay", gameObject);
+                            hit.transform.parent.GetComponentInChildren<EnemyRange>().hitByLight = true;
+                        }
+                        else if (lightColour == eType.Red)
+                        {
+                            hit.transform.parent.SendMessage("HitByRedRay", gameObject);
+                            hit.transform.parent.GetComponentInChildren<EnemyRange>().hitByLight = true;
+                        }
+                        else if (lightColour == eType.Green)
+                        {
+                            hit.transform.parent.GetComponentInChildren<EnemyRange>().hitByLight = true;
+                        }
+                    }
+                    // Only stop the ray if it is a wall (ignore other things, e.g. ghosts)
+                    if (hit.collider.CompareTag("Wall") || hit.collider.CompareTag("Door") || hit.collider.CompareTag("AmmoCrate"))
+                    {
+                        float distance = hit.distance;
+                        x = distance * Mathf.Cos(alpha) / transform.lossyScale.x;
+                        y = distance * Mathf.Sin(alpha) / transform.lossyScale.y;
+                        break;
+                    }
+                }
+            }
+
+            // Set the vertex values
+            vertices[i].x = x;
+            vertices[i].y = y;
+            vertices[i].z = transform.position.z;
+
+            //Specify the triangle going from 0 vertex (centre) to
+            //the i vertex and the previous vertex on the circle
+            triangles[(i - 1) * 3] = 0;
+            if (i == 1)
+            {
+                // If current vertex is 1, then previous vertex is the
+                // last vertex (to close the cricle)
+                triangles[(i - 1) * 3 + 1] = numPoints;
+            }
+            else
+            {
+                triangles[(i - 1) * 3 + 1] = i - 1;
+            }
+            triangles[(i - 1) * 3 + 2] = i;
+
+            // Increase the angle to get the next positon around the circle
+            alpha += delta;
+        }
+        // Set the new vertices and triangles in the mesh
+        mesh.vertices = vertices;
+        mesh.triangles = triangles;
+    }
+}

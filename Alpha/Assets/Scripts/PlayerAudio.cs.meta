@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: d52fb215c03f2483ea5b01ce43ea70cb
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - shootSound: {fileID: 8300000, guid: ee1955919112d443e9983870b3ccf518, type: 3}
+  - noAmmoSound: {fileID: 8300000, guid: fd2e84614b0f34e4a8d040aaa35b1add, type: 3}
+  - reloadSound: {fileID: 8300000, guid: b595ba12deacf458c86d1a5ef508ebe0, type: 3}
+  - deathSound: {fileID: 8300000, guid: a98e6ea55ff1e4386bcbdb0b38af68f4, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

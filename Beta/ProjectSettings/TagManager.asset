@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - AmbienceTrigger
+  - Bullet
+  - Wall
+  - AmmoCrate
+  - AmmoPickup
+  - Enemy
+  - EnemyRange
+  - PathfindingGrid
+  - GameMaster
+  - Vignette
+  - Door
+  - Crosshair
+  - Post-processing
+  - Fade
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - 
+  - 
+  - Raycasting
+  - Post-processing
+  - EnemyArms
+  - Player
+  - Bullet
+  - Enemy
+  - Gun
+  - Crate
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: UI
+    uniqueID: 2195041787
+    locked: 0
